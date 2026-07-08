@@ -38,11 +38,18 @@
   .dbmode{font-size:10px;font-weight:500;color:var(--muted);letter-spacing:.04em}
   .saved-list{display:flex;flex-direction:column;gap:6px;max-height:230px;overflow:auto}
   .saved-list .empty{font-size:12px;color:var(--muted);font-style:italic}
-  .saved-item{display:flex;gap:6px;align-items:stretch}
-  .saved-item .load{flex:1;text-align:left;background:#fcfbf7;border:1px solid var(--ui-line);border-radius:8px;padding:8px 10px;font-size:12.5px;color:var(--ink);cursor:pointer;font-family:inherit}
-  .saved-item .load:hover{border-color:var(--gold)}
-  .saved-item .del{border:1px solid var(--ui-line);background:transparent;border-radius:8px;width:32px;color:var(--muted);cursor:pointer;font-size:16px;line-height:1;font-family:inherit}
-  .saved-item .del:hover{color:#a33;border-color:#a33}
+  .busca{width:100%;margin-bottom:9px;padding:8px 10px;border:1px solid var(--ui-line);border-radius:8px;font-family:inherit;font-size:12.5px;background:#fcfbf7;color:var(--ink)}
+  .busca:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(153,85,21,.12)}
+  .saved-item{display:flex;flex-direction:column;border:1px solid var(--ui-line);border-left:3px solid var(--muted);border-radius:8px;overflow:hidden;background:#fcfbf7}
+  .saved-item .load{text-align:left;background:transparent;border:none;padding:8px 10px 3px;color:var(--ink);cursor:pointer;font-family:inherit;display:flex;flex-direction:column;gap:2px}
+  .saved-item .load:hover{background:rgba(153,85,21,.06)}
+  .si-title{font-size:12.5px;font-weight:600;line-height:1.25}
+  .si-date{font-size:10.5px;color:var(--muted)}
+  .si-row{display:flex;gap:6px;align-items:center;padding:2px 8px 8px}
+  .si-row .st{flex:1;font-size:11px;font-weight:600;padding:4px 6px;border:1px solid var(--ui-line);border-radius:6px;background:#fff;font-family:inherit;cursor:pointer}
+  .si-row .ico{width:28px;border:1px solid var(--ui-line);background:#fff;border-radius:6px;color:var(--muted);cursor:pointer;font-size:13px;line-height:1;font-family:inherit}
+  .si-row .ico.dup:hover{color:var(--gold);border-color:var(--gold)}
+  .si-row .ico.del:hover{color:#a33;border-color:#a33}
 
   .stage{padding:30px 30px 80px;overflow:auto;height:100vh}
   .stage-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
@@ -184,6 +191,7 @@
     <div class="savednote" id="savednote"></div>
     <div class="saved-wrap">
       <div class="saved-head">Propostas salvas <span id="dbmode" class="dbmode"></span></div>
+      <input type="text" id="buscaCliente" class="busca" placeholder="Buscar por cliente..." oninput="renderListUI()">
       <div id="savedlist" class="saved-list"><div class="empty">Nenhuma proposta salva ainda.</div></div>
     </div>
   </aside>
@@ -212,14 +220,15 @@
   if(ok){
     try{
       const {initializeApp}=await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js");
-      const {getFirestore,collection,addDoc,getDocs,deleteDoc,doc,query,orderBy,serverTimestamp}=
+      const {getFirestore,collection,addDoc,getDocs,deleteDoc,updateDoc,setDoc,doc,query,orderBy,serverTimestamp}=
         await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js");
       const db=getFirestore(initializeApp(firebaseConfig));
       const col=collection(db,"propostas");
       window.DB={
-        async save(o){o.criadoEm=serverTimestamp();const r=await addDoc(col,o);return r.id;},
+        async save(o,id){ if(id){ await setDoc(doc(db,"propostas",id),o,{merge:true}); return id; } o.criadoEm=serverTimestamp(); const r=await addDoc(col,o); return r.id; },
         async list(){const snap=await getDocs(query(col,orderBy("criadoEm","desc")));return snap.docs.map(d=>({id:d.id,...d.data()}));},
-        async remove(id){await deleteDoc(doc(db,"propostas",id));}
+        async remove(id){await deleteDoc(doc(db,"propostas",id));},
+        async setStatus(id,status){await updateDoc(doc(db,"propostas",id),{status});}
       };
     }catch(e){console.error("Firebase indisponível:",e);window.DB=null;}
   } else { window.DB=null; }
@@ -393,48 +402,85 @@ function fit(){
 window.addEventListener('resize',fit);
 
 const campos=['cliente','endereco','objeto','escopo','valor','parcelas','desconto','validade','pix'];
-function note(m){const n=document.getElementById('savednote');n.textContent=m;setTimeout(()=>{if(n.textContent===m)n.textContent='';},2600);}
+function note(m){const n=document.getElementById('savednote');n.textContent=m;setTimeout(()=>{if(n.textContent===m)n.textContent='';},3200);}
 
-/* armazenamento: usa Firebase se configurado; senão, o próprio navegador */
+/* status */
+const STATUS={Rascunho:{cor:'#8a8577'},Enviada:{cor:'#b9743a'},Aprovada:{cor:'#3f7a34'},Recusada:{cor:'#a8443a'}};
+const STATUS_ORDER=['Rascunho','Enviada','Aprovada','Recusada'];
+function fmtData(c){try{let d;if(!c)return'';if(typeof c==='number')d=new Date(c);else if(c.toDate)d=c.toDate();else if(c.seconds)d=new Date(c.seconds*1000);else return'';return d.toLocaleDateString('pt-BR');}catch(e){return''}}
+
+/* armazenamento: Firebase se configurado; senão, o navegador */
 const LKEY='asaa_propostas';
 function localAll(){try{return JSON.parse(localStorage.getItem(LKEY)||'[]')}catch(e){return[]}}
 function localSet(a){try{localStorage.setItem(LKEY,JSON.stringify(a))}catch(e){}}
-async function storeSave(o){if(window.DB)return await window.DB.save(o);const a=localAll();const id='p'+Date.now();a.unshift({id,...o,criadoEm:Date.now()});localSet(a);return id;}
+async function storeSave(o,id){
+  if(window.DB)return await window.DB.save(o,id);
+  const a=localAll();
+  if(id){const i=a.findIndex(x=>x.id===id);if(i>=0){a[i]={...a[i],...o};localSet(a);return id;}}
+  const nid='p'+Date.now();a.unshift({id:nid,...o,criadoEm:Date.now()});localSet(a);return nid;
+}
 async function storeList(){if(window.DB)return await window.DB.list();return localAll();}
 async function storeRemove(id){if(window.DB)return await window.DB.remove(id);localSet(localAll().filter(x=>x.id!==id));}
+async function storeSetStatus(id,status){if(window.DB)return await window.DB.setStatus(id,status);const a=localAll();const i=a.findIndex(x=>x.id===id);if(i>=0){a[i].status=status;localSet(a);}}
+
+let currentId=null;
 
 async function salvarProposta(){
   const d=data();
   if(!d.cliente){note('Preencha o nome do cliente antes de salvar.');return;}
   const o={};campos.forEach(c=>o[c]=val(c));
-  try{await storeSave(o);note('Proposta salva'+(window.DB?' na nuvem.':' neste navegador.'));renderList();}
-  catch(e){console.error(e);note('Erro ao salvar.');}
+  const novo=!currentId;
+  if(novo)o.status='Rascunho';
+  try{
+    const id=await storeSave(o,currentId);currentId=id;
+    note((novo?'Proposta salva':'Proposta atualizada')+(window.DB?' na nuvem.':' neste navegador.'));
+    await refreshList();
+  }catch(e){console.error(e);note('Erro ao salvar.');}
 }
-async function renderList(){
+
+async function refreshList(){try{window._items=await storeList();}catch(e){window._items=[];}renderListUI();}
+function renderListUI(){
   const box=document.getElementById('savedlist');
-  let items=[];try{items=await storeList();}catch(e){items=[];}
-  window._items=items;
-  if(!items.length){box.innerHTML='<div class="empty">Nenhuma proposta salva ainda.</div>';return;}
+  const term=(document.getElementById('buscaCliente')?.value||'').toLowerCase().trim();
+  let items=window._items||[];
+  if(term)items=items.filter(it=>(`${it.cliente||''} ${it.endereco||''}`).toLowerCase().includes(term));
+  if(!items.length){box.innerHTML='<div class="empty">'+(term?'Nenhuma proposta encontrada.':'Nenhuma proposta salva ainda.')+'</div>';return;}
   box.innerHTML=items.map(it=>{
     const titulo=[it.cliente,it.endereco].filter(Boolean).join(' — ')||'(sem nome)';
-    return `<div class="saved-item"><button class="load" onclick="loadProposta('${it.id}')">${esc(titulo)}</button><button class="del" title="Excluir" onclick="removeProposta('${it.id}')">×</button></div>`;
+    const st=it.status||'Rascunho';
+    const cor=(STATUS[st]||STATUS.Rascunho).cor;
+    const opts=STATUS_ORDER.map(k=>`<option ${k===st?'selected':''}>${k}</option>`).join('');
+    return `<div class="saved-item" style="border-left-color:${cor}">
+      <button class="load" onclick="loadProposta('${it.id}')"><span class="si-title">${esc(titulo)}</span><span class="si-date">${fmtData(it.criadoEm)}</span></button>
+      <div class="si-row"><select class="st" style="color:${cor}" onchange="setStatus('${it.id}',this.value)">${opts}</select><button class="ico dup" title="Duplicar" onclick="duplicarProposta('${it.id}')">⧉</button><button class="ico del" title="Excluir" onclick="removeProposta('${it.id}')">×</button></div>
+    </div>`;
   }).join('');
 }
+function preencher(it){campos.forEach(c=>{document.getElementById(c).value=(it[c]!==undefined&&it[c]!==null?it[c]:'');});}
 function loadProposta(id){
   const it=(window._items||[]).find(x=>x.id===id);if(!it)return;
-  campos.forEach(c=>{if(it[c]!==undefined)document.getElementById(c).value=it[c];});
-  render();note('Proposta carregada.');window.scrollTo(0,0);
+  preencher(it);currentId=id;render();note('Proposta carregada para edição.');window.scrollTo(0,0);
+}
+function duplicarProposta(id){
+  const it=(window._items||[]).find(x=>x.id===id);if(!it)return;
+  preencher(it);currentId=null;render();
+  note('Cópia carregada — edite o que quiser e clique em “Salvar proposta” para criar a nova.');window.scrollTo(0,0);
+}
+async function setStatus(id,status){
+  try{await storeSetStatus(id,status);const it=(window._items||[]).find(x=>x.id===id);if(it)it.status=status;renderListUI();note('Status: '+status+'.');}
+  catch(e){note('Erro ao atualizar status.');}
 }
 async function removeProposta(id){
   if(!confirm('Excluir esta proposta salva?'))return;
-  try{await storeRemove(id);renderList();note('Proposta excluída.');}catch(e){note('Erro ao excluir.');}
+  try{await storeRemove(id);if(currentId===id)currentId=null;await refreshList();note('Proposta excluída.');}
+  catch(e){note('Erro ao excluir.');}
 }
-function limpar(){if(!confirm('Começar uma nova proposta? Os campos atuais serão limpos.'))return;['cliente','endereco','objeto','escopo','valor','pix'].forEach(c=>document.getElementById(c).value='');document.getElementById('parcelas').value=3;document.getElementById('desconto').value=10;document.getElementById('validade').value=3;render();}
+function limpar(){if(!confirm('Começar uma nova proposta? Os campos atuais serão limpos.'))return;currentId=null;['cliente','endereco','objeto','escopo','valor','pix'].forEach(c=>document.getElementById(c).value='');document.getElementById('parcelas').value=3;document.getElementById('desconto').value=10;document.getElementById('validade').value=3;render();note('Nova proposta.');}
 
-window.addEventListener('db-ready',()=>{const b=document.getElementById('dbmode');if(b)b.textContent=window.DB?'• nuvem':'• local';renderList();});
+window.addEventListener('db-ready',()=>{const b=document.getElementById('dbmode');if(b)b.textContent=window.DB?'• nuvem':'• local';refreshList();});
 
 document.querySelectorAll('input,textarea').forEach(el=>el.addEventListener('input',render));
-render();renderList();
+render();refreshList();
 </script>
 </body>
 </html>
