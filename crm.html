@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CRM — Aline Santos Arquitetos Associados</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --green:#243810;--green-deep:#1b2b0c;--gold:#995515;--gold-soft:#b9743a;
+    --paper:#f6f3ec;--ink:#20231c;--muted:#6f6a5c;--line:#e4ddce;--ui-bg:#ece7dc;
+    --st-ativo:#3f7a34;--st-antigo:#b9743a;--st-lead:#3a6ea5;--st-parceiro:#7a4f9e;
+  }
+  *{box-sizing:border-box}html,body{margin:0;padding:0}
+  body{font-family:'Inter',system-ui,sans-serif;background:var(--ui-bg);color:var(--ink);-webkit-font-smoothing:antialiased}
+  .top{background:var(--green);color:var(--paper);padding:22px 26px}
+  .top .row{max-width:1180px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+  .back{color:#e7c9a6;text-decoration:none;font-size:13px;font-weight:600}
+  .top h1{font-size:19px;font-weight:700;margin:0}
+  .top .kicker{font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:#e7c9a6;margin-top:2px}
+  .wrap{max-width:1180px;margin:0 auto;padding:26px 26px 70px}
+
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px}
+  .stat{background:#fff;border:1px solid var(--line);border-radius:12px;padding:16px 18px}
+  .stat .n{font-size:26px;font-weight:700;color:var(--green)}
+  .stat .l{font-size:11.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-top:2px}
+
+  .panel{background:#fff;border:1px solid var(--line);border-radius:14px;padding:20px 22px;margin-bottom:20px}
+  .panel h2{font-size:15px;margin:0 0 14px;color:var(--green)}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+  .field{margin-bottom:12px}
+  .field label{display:block;font-size:12px;font-weight:600;margin-bottom:5px}
+  .field .hint{font-size:11px;color:var(--muted);margin-top:4px}
+  input[type=text],input[type=email],input[type=tel],select,textarea{
+    width:100%;padding:9px 11px;border:1px solid var(--line);border-radius:8px;font-family:inherit;font-size:13.5px;background:#fcfbf7;color:var(--ink)}
+  input:focus,select:focus,textarea:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(153,85,21,.12)}
+  textarea{resize:vertical}
+  .checks{display:flex;gap:18px;flex-wrap:wrap;margin-top:4px}
+  .chk{display:flex;align-items:center;gap:7px;font-size:13px}
+  .chk input{width:auto}
+
+  .actions-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px}
+  button{font-family:inherit;font-size:13px;font-weight:600;border-radius:8px;padding:10px 16px;border:1px solid var(--green);cursor:pointer;background:transparent;color:var(--green)}
+  button.primary{background:var(--green);color:#fff}
+  button.primary:hover{background:var(--green-deep)}
+  button:hover{background:rgba(36,56,16,.06)}
+  button.ghost-muted{border-color:var(--line);color:var(--muted)}
+  button:disabled{opacity:.4;cursor:not-allowed}
+
+  .toolbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+  .toolbar input[type=text]{max-width:260px}
+  .toolbar select{max-width:180px}
+  .spacer{flex:1}
+
+  .bulkbar{display:none;align-items:center;gap:10px;background:#fff;border:1px solid var(--gold);border-radius:10px;padding:10px 14px;margin-bottom:14px;flex-wrap:wrap}
+  .bulkbar.show{display:flex}
+  .bulkbar .cnt{font-size:12.5px;font-weight:600;color:var(--gold-soft)}
+
+  table{width:100%;border-collapse:collapse;background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+  thead th{text-align:left;font-size:11px;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);padding:11px 12px;border-bottom:2px solid var(--line);background:#fbf9f5}
+  tbody td{padding:11px 12px;font-size:13px;border-bottom:1px solid var(--line);vertical-align:middle}
+  tbody tr:last-child td{border-bottom:none}
+  tbody tr:hover{background:#fbf9f5}
+  .nome-cel{font-weight:600}
+  .sub-cel{font-size:11.5px;color:var(--muted)}
+  .badge{display:inline-block;font-size:10.5px;font-weight:700;color:#fff;padding:3px 9px;border-radius:20px}
+  .badge.ativo{background:var(--st-ativo)}
+  .badge.antigo{background:var(--st-antigo)}
+  .badge.lead{background:var(--st-lead)}
+  .badge.parceiro{background:var(--st-parceiro)}
+  .wa-link{display:inline-flex;align-items:center;gap:4px;color:#25a55a;text-decoration:none;font-size:12px;font-weight:600}
+  .wa-link:hover{text-decoration:underline}
+  .row-actions{display:flex;gap:6px}
+  .row-actions button{padding:5px 9px;font-size:12px}
+  .empty{padding:40px 20px;text-align:center;color:var(--muted);font-size:13.5px}
+  .note{font-size:11.5px;color:var(--muted);line-height:1.5;margin-top:8px}
+
+  .modal-overlay{display:none;position:fixed;inset:0;background:rgba(20,25,15,.5);align-items:center;justify-content:center;z-index:50;padding:20px}
+  .modal-overlay.show{display:flex}
+  .modal{background:#fff;border-radius:14px;padding:24px;max-width:480px;width:100%;max-height:86vh;overflow:auto}
+  .modal h3{margin:0 0 12px;font-size:16px;color:var(--green)}
+  .modal textarea{width:100%;min-height:140px;font-family:monospace;font-size:12px}
+
+  @media (max-width:820px){
+    .stats{grid-template-columns:1fr 1fr}
+    .grid2,.grid3{grid-template-columns:1fr}
+    table{display:block;overflow-x:auto;white-space:nowrap}
+  }
+</style>
+</head>
+<body>
+  <div class="top"><div class="row">
+    <a class="back" href="index.html">&larr; In&iacute;cio</a>
+    <div style="text-align:center">
+      <h1>CRM — Clientes do Escrit&oacute;rio</h1>
+      <div class="kicker">Cadastro central de clientes, leads e contatos</div>
+    </div>
+    <span></span>
+  </div></div>
+
+  <div class="wrap">
+
+    <div class="stats" id="stats">
+      <div class="stat"><div class="n" id="st-total">0</div><div class="l">Total cadastrados</div></div>
+      <div class="stat"><div class="n" id="st-ativo">0</div><div class="l">Clientes ativos</div></div>
+      <div class="stat"><div class="n" id="st-lead">0</div><div class="l">Leads</div></div>
+      <div class="stat"><div class="n" id="st-email">0</div><div class="l">Aceitam e-mail</div></div>
+    </div>
+
+    <div class="panel">
+      <h2 id="form-title">Novo cadastro</h2>
+      <div class="grid2">
+        <div class="field"><label for="f-nome">Nome *</label><input type="text" id="f-nome" placeholder="Ex.: João Pereira"></div>
+        <div class="field"><label for="f-tipo">Tipo</label>
+          <select id="f-tipo">
+            <option value="Lead">Lead</option>
+            <option value="Cliente Ativo">Cliente Ativo</option>
+            <option value="Cliente Antigo">Cliente Antigo</option>
+            <option value="Parceiro">Parceiro / Fornecedor</option>
+          </select>
+        </div>
+      </div>
+      <div class="grid2">
+        <div class="field"><label for="f-telefone">Telefone / WhatsApp</label><input type="tel" id="f-telefone" placeholder="Ex.: (62) 99999-8888"></div>
+        <div class="field"><label for="f-email">E-mail</label><input type="email" id="f-email" placeholder="Ex.: joao@email.com"></div>
+      </div>
+      <div class="grid2">
+        <div class="field"><label for="f-origem">Origem</label><input type="text" id="f-origem" placeholder="Ex.: Indicação, Instagram, Site"></div>
+        <div class="field"><label for="f-endereco">Endereço / Obra</label><input type="text" id="f-endereco" placeholder="Ex.: Setor Bueno, Goiânia-GO"></div>
+      </div>
+      <div class="field"><label for="f-obs">Observações</label><textarea id="f-obs" rows="2" placeholder="Notas internas sobre o cliente"></textarea></div>
+      <div class="checks">
+        <label class="chk"><input type="checkbox" id="f-news" checked> Aceita receber newsletter (e-mail)</label>
+        <label class="chk"><input type="checkbox" id="f-wa" checked> Aceita receber mensagens no WhatsApp</label>
+      </div>
+      <div class="actions-row">
+        <button class="primary" onclick="salvarCliente()" id="btn-salvar">Salvar cadastro</button>
+        <button class="ghost-muted" onclick="cancelarEdicao()" id="btn-cancelar" style="display:none">Cancelar edição</button>
+        <span class="spacer"></span>
+        <button onclick="abrirImport()">Importar CSV</button>
+        <button onclick="exportarCSV(false)">Exportar tudo (CSV)</button>
+      </div>
+      <p class="note">Dica: para a newsletter, exporte o CSV aqui e importe-o no <b>Hostinger Reach</b>. Para WhatsApp, use "Copiar telefones" (abaixo da lista, após selecionar contatos) e cole na criação de uma Lista de Transmissão no WhatsApp Business.</p>
+    </div>
+
+    <div class="toolbar">
+      <input type="text" id="busca" placeholder="Buscar por nome, e-mail ou telefone..." oninput="renderLista()">
+      <select id="filtroTipo" onchange="renderLista()">
+        <option value="">Todos os tipos</option>
+        <option value="Lead">Lead</option>
+        <option value="Cliente Ativo">Cliente Ativo</option>
+        <option value="Cliente Antigo">Cliente Antigo</option>
+        <option value="Parceiro">Parceiro / Fornecedor</option>
+      </select>
+      <span class="spacer"></span>
+      <span id="dbmode" style="font-size:11.5px;color:var(--muted)"></span>
+    </div>
+
+    <div class="bulkbar" id="bulkbar">
+      <span class="cnt" id="bulk-cnt">0 selecionados</span>
+      <button onclick="copiarSelecionados('email')">Copiar e-mails</button>
+      <button onclick="copiarSelecionados('telefone')">Copiar telefones</button>
+      <button onclick="exportarCSV(true)">Exportar selecionados (CSV)</button>
+      <button class="ghost-muted" onclick="limparSelecao()">Limpar seleção</button>
+    </div>
+
+    <div id="tabela-wrap">
+      <table>
+        <thead><tr>
+          <th style="width:28px"><input type="checkbox" id="check-all" onchange="toggleAll(this)"></th>
+          <th>Nome</th><th>Contato</th><th>Tipo</th><th>Origem</th><th style="width:110px">Ações</th>
+        </tr></thead>
+        <tbody id="tbody"><tr><td colspan="6" class="empty">Carregando...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="import-overlay">
+    <div class="modal">
+      <h3>Importar clientes por CSV</h3>
+      <p style="font-size:12.5px;color:var(--muted);line-height:1.5">
+        Cole abaixo o conteúdo de uma planilha (CSV). Primeira linha = cabeçalho, com colunas:
+        <code>nome,telefone,email,tipo,origem,observacoes</code>. Apenas "nome" é obrigatório.
+      </p>
+      <textarea id="csv-input" placeholder="nome,telefone,email,tipo,origem,observacoes
+Maria Silva,62999998888,maria@email.com,Cliente Ativo,Indicação,"></textarea>
+      <div class="actions-row" style="margin-top:12px">
+        <button class="primary" onclick="processarImport()">Importar</button>
+        <button class="ghost-muted" onclick="fecharImport()">Cancelar</button>
+      </div>
+      <p class="note" id="import-result"></p>
+    </div>
+  </div>
+
+<script type="module">
+  const firebaseConfig = {
+    apiKey: "AIzaSyAklMUzvLIu-PGCS_FxEqAka9cWywzDQrY",
+    authDomain: "propstas-aline.firebaseapp.com",
+    projectId: "propstas-aline",
+    storageBucket: "propstas-aline.firebasestorage.app",
+    messagingSenderId: "468539998697",
+    appId: "1:468539998697:web:362357c2aa2b4909f18b78"
+  };
+  try{
+    const {initializeApp}=await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js");
+    const {getFirestore,collection,addDoc,getDocs,deleteDoc,updateDoc,doc,query,orderBy,serverTimestamp}=
+      await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js");
+    const db=getFirestore(initializeApp(firebaseConfig));
+    const col=collection(db,"crm_clientes");
+    window.DB={
+      async save(o){o.criadoEm=serverTimestamp();const r=await addDoc(col,o);return r.id;},
+      async update(id,o){await updateDoc(doc(db,"crm_clientes",id),o);},
+      async list(){const snap=await getDocs(query(col,orderBy("criadoEm","desc")));return snap.docs.map(d=>({id:d.id,...d.data()}));},
+      async remove(id){await deleteDoc(doc(db,"crm_clientes",id));}
+    };
+  }catch(e){console.error("Firebase indisponível:",e);window.DB=null;}
+  window.dispatchEvent(new Event("db-ready"));
+</script>
+
+<script>
+const esc=s=>(s||'').toString().replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const val=id=>document.getElementById(id).value;
+
+/* --------- fallback local (se Firebase não carregar) --------- */
+const LKEY='asaa_crm_clientes';
+function localAll(){try{return JSON.parse(localStorage.getItem(LKEY)||'[]')}catch(e){return[]}}
+function localSet(a){try{localStorage.setItem(LKEY,JSON.stringify(a))}catch(e){}}
+
+let ITEMS=[];
+let editId=null;
+let selecionados=new Set();
+
+async function carregar(){
+  try{ ITEMS = window.DB ? await window.DB.list() : localAll(); }
+  catch(e){ ITEMS = []; }
+  renderStats();
+  renderLista();
+}
+
+function renderStats(){
+  document.getElementById('st-total').textContent=ITEMS.length;
+  document.getElementById('st-ativo').textContent=ITEMS.filter(i=>i.tipo==='Cliente Ativo').length;
+  document.getElementById('st-lead').textContent=ITEMS.filter(i=>i.tipo==='Lead').length;
+  document.getElementById('st-email').textContent=ITEMS.filter(i=>i.newsletter).length;
+}
+
+function badgeClass(tipo){
+  return {'Cliente Ativo':'ativo','Cliente Antigo':'antigo','Lead':'lead','Parceiro':'parceiro'}[tipo]||'lead';
+}
+function soDigitos(s){return (s||'').replace(/[^\d]/g,'');}
+function waHref(tel){
+  let d=soDigitos(tel);
+  if(!d)return null;
+  if(d.length<=11) d='55'+d;
+  return 'https://wa.me/'+d;
+}
+
+function renderLista(){
+  const termo=val('busca').toLowerCase().trim();
+  const filtro=val('filtroTipo');
+  let list=ITEMS.filter(it=>{
+    if(filtro && it.tipo!==filtro) return false;
+    if(!termo) return true;
+    return `${it.nome||''} ${it.email||''} ${it.telefone||''}`.toLowerCase().includes(termo);
+  });
+  const tbody=document.getElementById('tbody');
+  if(!list.length){tbody.innerHTML='<tr><td colspan="6" class="empty">Nenhum cliente encontrado.</td></tr>';updateBulkbar();return;}
+  tbody.innerHTML=list.map(it=>{
+    const wa=waHref(it.telefone);
+    const checked=selecionados.has(it.id)?'checked':'';
+    return `<tr>
+      <td><input type="checkbox" data-id="${it.id}" ${checked} onchange="toggleSel('${it.id}',this.checked)"></td>
+      <td><div class="nome-cel">${esc(it.nome)}</div>${it.endereco?`<div class="sub-cel">${esc(it.endereco)}</div>`:''}</td>
+      <td>
+        ${it.telefone?`<div>${wa?`<a class="wa-link" href="${wa}" target="_blank">📱 ${esc(it.telefone)}</a>`:esc(it.telefone)}</div>`:''}
+        ${it.email?`<div class="sub-cel">${esc(it.email)}</div>`:''}
+      </td>
+      <td><span class="badge ${badgeClass(it.tipo)}">${esc(it.tipo||'Lead')}</span></td>
+      <td class="sub-cel">${esc(it.origem)||'—'}</td>
+      <td><div class="row-actions">
+        <button onclick="editarCliente('${it.id}')">Editar</button>
+        <button class="ghost-muted" onclick="excluirCliente('${it.id}')">Excluir</button>
+      </div></td>
+    </tr>`;
+  }).join('');
+  updateBulkbar();
+}
+
+function toggleSel(id,checked){ if(checked) selecionados.add(id); else selecionados.delete(id); updateBulkbar(); }
+function toggleAll(cb){
+  document.querySelectorAll('#tbody input[type=checkbox]').forEach(el=>{
+    el.checked=cb.checked;
+    if(cb.checked) selecionados.add(el.dataset.id); else selecionados.delete(el.dataset.id);
+  });
+  updateBulkbar();
+}
+function limparSelecao(){ selecionados.clear(); renderLista(); }
+function updateBulkbar(){
+  const bar=document.getElementById('bulkbar');
+  if(selecionados.size>0){ bar.classList.add('show'); document.getElementById('bulk-cnt').textContent=selecionados.size+' selecionado'+(selecionados.size>1?'s':''); }
+  else bar.classList.remove('show');
+}
+
+function limparForm(){
+  ['f-nome','f-telefone','f-email','f-origem','f-endereco','f-obs'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('f-tipo').value='Lead';
+  document.getElementById('f-news').checked=true;
+  document.getElementById('f-wa').checked=true;
+  editId=null;
+  document.getElementById('form-title').textContent='Novo cadastro';
+  document.getElementById('btn-salvar').textContent='Salvar cadastro';
+  document.getElementById('btn-cancelar').style.display='none';
+}
+function cancelarEdicao(){ limparForm(); }
+
+function coletarForm(){
+  return {
+    nome: val('f-nome').trim(),
+    telefone: val('f-telefone').trim(),
+    email: val('f-email').trim(),
+    tipo: val('f-tipo'),
+    origem: val('f-origem').trim(),
+    endereco: val('f-endereco').trim(),
+    observacoes: val('f-obs').trim(),
+    newsletter: document.getElementById('f-news').checked,
+    whatsappOk: document.getElementById('f-wa').checked
+  };
+}
+
+async function salvarCliente(){
+  const o=coletarForm();
+  if(!o.nome){ alert('Preencha ao menos o nome do cliente.'); return; }
+  try{
+    if(editId){
+      if(window.DB) await window.DB.update(editId,o);
+      else { const a=localAll(); const i=a.findIndex(x=>x.id===editId); if(i>=0){a[i]={...a[i],...o};localSet(a);} }
+    } else {
+      if(window.DB) await window.DB.save(o);
+      else { const a=localAll(); a.unshift({id:'c'+Date.now(),...o,criadoEm:Date.now()}); localSet(a); }
+    }
+    limparForm();
+    await carregar();
+  }catch(e){ console.error(e); alert('Erro ao salvar. Tente novamente.'); }
+}
+
+function editarCliente(id){
+  const it=ITEMS.find(x=>x.id===id); if(!it)return;
+  document.getElementById('f-nome').value=it.nome||'';
+  document.getElementById('f-telefone').value=it.telefone||'';
+  document.getElementById('f-email').value=it.email||'';
+  document.getElementById('f-tipo').value=it.tipo||'Lead';
+  document.getElementById('f-origem').value=it.origem||'';
+  document.getElementById('f-endereco').value=it.endereco||'';
+  document.getElementById('f-obs').value=it.observacoes||'';
+  document.getElementById('f-news').checked=!!it.newsletter;
+  document.getElementById('f-wa').checked=!!it.whatsappOk;
+  editId=id;
+  document.getElementById('form-title').textContent='Editando cadastro';
+  document.getElementById('btn-salvar').textContent='Atualizar cadastro';
+  document.getElementById('btn-cancelar').style.display='inline-block';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+async function excluirCliente(id){
+  if(!confirm('Excluir este cadastro? Essa ação não pode ser desfeita.'))return;
+  try{
+    if(window.DB) await window.DB.remove(id);
+    else localSet(localAll().filter(x=>x.id!==id));
+    selecionados.delete(id);
+    await carregar();
+  }catch(e){ alert('Erro ao excluir.'); }
+}
+
+function copiarSelecionados(campo){
+  const vals=ITEMS.filter(it=>selecionados.has(it.id)).map(it=>it[campo]).filter(Boolean);
+  if(!vals.length){ alert('Nenhum '+(campo==='email'?'e-mail':'telefone')+' encontrado na seleção.'); return; }
+  const texto=vals.join(', ');
+  navigator.clipboard.writeText(texto).then(()=>{
+    alert((campo==='email'?'E-mails':'Telefones')+' copiados! ('+vals.length+')\n\nCole no Hostinger Reach ou na Lista de Transmissão do WhatsApp Business.');
+  }).catch(()=>{ prompt('Copie manualmente:', texto); });
+}
+
+function csvEscape(v){
+  v=(v===undefined||v===null)?'':String(v);
+  if(/[",\n]/.test(v)) return '"'+v.replace(/"/g,'""')+'"';
+  return v;
+}
+function exportarCSV(apenasSelecionados){
+  let list = apenasSelecionados ? ITEMS.filter(it=>selecionados.has(it.id)) : ITEMS;
+  if(!list.length){ alert('Nenhum cliente para exportar.'); return; }
+  const cols=['nome','telefone','email','tipo','origem','endereco','observacoes','newsletter','whatsappOk'];
+  const header=cols.join(',');
+  const rows=list.map(it=>cols.map(c=>csvEscape(it[c])).join(','));
+  const csv=[header,...rows].join('\n');
+  const blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url; a.download='clientes-aline-santos.csv'; a.click();
+  URL.revokeObjectURL(url);
+}
+
+/* --------- importar CSV --------- */
+function abrirImport(){ document.getElementById('import-overlay').classList.add('show'); document.getElementById('import-result').textContent=''; }
+function fecharImport(){ document.getElementById('import-overlay').classList.remove('show'); document.getElementById('csv-input').value=''; }
+function parseCSVLine(line){
+  const out=[]; let cur=''; let inQ=false;
+  for(let i=0;i<line.length;i++){
+    const c=line[i];
+    if(inQ){
+      if(c==='"'){ if(line[i+1]==='"'){cur+='"';i++;} else inQ=false; }
+      else cur+=c;
+    } else {
+      if(c==='"') inQ=true;
+      else if(c===','){ out.push(cur); cur=''; }
+      else cur+=c;
+    }
+  }
+  out.push(cur);
+  return out;
+}
+async function processarImport(){
+  const raw=val('csv-input').trim();
+  if(!raw){ document.getElementById('import-result').textContent='Cole o conteúdo do CSV antes de importar.'; return; }
+  const lines=raw.split(/\r?\n/).filter(l=>l.trim());
+  if(lines.length<2){ document.getElementById('import-result').textContent='Inclua o cabeçalho e pelo menos uma linha de dados.'; return; }
+  const header=parseCSVLine(lines[0]).map(h=>h.trim().toLowerCase());
+  const idx=k=>header.indexOf(k);
+  let ok=0, falhas=0;
+  for(let i=1;i<lines.length;i++){
+    const cols=parseCSVLine(lines[i]);
+    const nome=(cols[idx('nome')]||'').trim();
+    if(!nome){ falhas++; continue; }
+    const o={
+      nome,
+      telefone:(cols[idx('telefone')]||'').trim(),
+      email:(cols[idx('email')]||'').trim(),
+      tipo:(cols[idx('tipo')]||'Lead').trim()||'Lead',
+      origem:(cols[idx('origem')]||'').trim(),
+      observacoes:(cols[idx('observacoes')]||'').trim(),
+      newsletter:true, whatsappOk:true
+    };
+    try{
+      if(window.DB) await window.DB.save(o);
+      else { const a=localAll(); a.unshift({id:'c'+Date.now()+i,...o,criadoEm:Date.now()}); localSet(a); }
+      ok++;
+    }catch(e){ falhas++; }
+  }
+  document.getElementById('import-result').textContent = `Importação concluída: ${ok} cadastro(s) adicionados${falhas?`, ${falhas} linha(s) ignorada(s)`:''}.`;
+  await carregar();
+  setTimeout(fecharImport, 1800);
+}
+
+window.salvarCliente=salvarCliente; window.editarCliente=editarCliente; window.excluirCliente=excluirCliente;
+window.cancelarEdicao=cancelarEdicao; window.toggleSel=toggleSel; window.toggleAll=toggleAll;
+window.limparSelecao=limparSelecao; window.copiarSelecionados=copiarSelecionados; window.exportarCSV=exportarCSV;
+window.abrirImport=abrirImport; window.fecharImport=fecharImport; window.processarImport=processarImport;
+window.renderLista=renderLista;
+
+window.addEventListener('db-ready', ()=>{
+  const b=document.getElementById('dbmode'); if(b) b.textContent = window.DB ? '• salvando na nuvem' : '• salvando neste navegador';
+  carregar();
+});
+</script>
+</body>
+</html>
